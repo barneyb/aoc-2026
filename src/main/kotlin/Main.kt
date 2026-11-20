@@ -1,10 +1,16 @@
 package com.barneyb.aoc2026
 
-fun main() {
-    val name = "Kotlin"
-    println("Hello, $name!")
+import com.barneyb.aoc2026.cmd.List
+import com.barneyb.aoc2026.cmd.Solve
+import com.github.ajalt.clikt.core.CoreCliktCommand
+import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.core.subcommands
 
-    for (i in 1..5) {
-        println("i = $i")
+class Main : CoreCliktCommand() {
+    override fun run() {
     }
 }
+
+fun main(args: Array<String>) = Main()
+    .subcommands(List(), Solve())
+    .main(args)
