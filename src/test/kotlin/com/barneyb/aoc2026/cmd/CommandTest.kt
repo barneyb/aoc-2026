@@ -1,7 +1,5 @@
-package cmd
+package com.barneyb.aoc2026.cmd
 
-import com.barneyb.aoc2026.cmd.List
-import com.barneyb.aoc2026.cmd.Solve
 import com.github.ajalt.clikt.core.main
 import org.junit.jupiter.api.Test
 

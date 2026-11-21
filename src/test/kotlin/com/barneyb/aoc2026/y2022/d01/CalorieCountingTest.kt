@@ -1,6 +1,5 @@
-package y2022.d01
+package com.barneyb.aoc2026.y2022.d01
 
-import com.barneyb.aoc2026.y2022.d01.CalorieCounting
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

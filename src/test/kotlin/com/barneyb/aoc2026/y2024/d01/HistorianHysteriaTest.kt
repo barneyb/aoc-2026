@@ -1,6 +1,5 @@
-package y2024.d01
+package com.barneyb.aoc2026.y2024.d01
 
-import com.barneyb.aoc2026.y2024.d01.HistorianHysteria
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 

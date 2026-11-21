@@ -1,6 +1,5 @@
-package y2015.d01
+package com.barneyb.aoc2026.y2015.d01
 
-import com.barneyb.aoc2026.y2015.d01.NotQuiteLisp
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.assertEquals
