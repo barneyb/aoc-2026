@@ -1,13 +1,12 @@
 package com.barneyb.aoc2026.y2022.d16
 
-import com.barneyb.aoc2026.SolveA
+import com.barneyb.aoc2026.Solver
 import java.io.BufferedReader
 
 private const val START = "AA"
-private const val MINUTES = 30
 
-class ProboscideaVolcanium : SolveA() {
-    override fun solveA(input: BufferedReader): Int {
+class ProboscideaVolcanium : Solver() {
+    override fun solve(input: BufferedReader): Pair<Int, Int> {
         val byName = input.lineSequence()
             .map(Valve::from)
             .associateBy(Valve::name)
@@ -50,26 +49,30 @@ class ProboscideaVolcanium : SolveA() {
             }
         }
 
-        // finally, do the walk
-        return doWalk(byName.values.associateBy(Valve::name,
-                                                Valve::flowRate),
-                      graph)
+        // finally, do the walks
+        val flowRates = byName.values.associateBy(Valve::name,
+                                                  Valve::flowRate)
+        return Pair(doWalk(flowRates, graph, 1, 30),
+                    doWalk(flowRates, graph, 2, 26))
     }
 
     private fun doWalk(
         flowRates: Map<String, Int>,
         graph: Map<String, Map<String, Int>>,
+        players: Int,
+        minutes: Int,
     ): Int {
-        var best = State()
+        var best = State((1..players).map { Player(minutes) })
         val queue = ArrayDeque<State>()
         queue.add(best)
         while (queue.isNotEmpty()) {
             val curr = queue.removeFirst()
             if (curr.released > best.released) best = curr
-            val adj = graph[curr.at]!!
-            adj.forEach { (to, min) ->
-                if (curr.canMove(to, min)) {
-                    queue += curr.moveTo(to, min, flowRates[to]!!)
+            for (p in curr.players) {
+                graph[p.at]!!.forEach { (to, min) ->
+                    if (curr.canMove(p, to, min)) {
+                        queue += curr.moveTo(p, to, min, flowRates[to]!!)
+                    }
                 }
             }
         }
@@ -77,19 +80,22 @@ class ProboscideaVolcanium : SolveA() {
     }
 }
 
-private data class State(
+private data class Player(
+    val minutesLeft: Int,
     val at: String = START,
-    val minutesLeft: Int = MINUTES,
+)
+
+private data class State(
+    val players: List<Player>,
     val released: Int = 0,
     val visited: Set<String> = setOf(START),
 ) {
-    fun canMove(to: String, min: Int) = minutesLeft - min >= 1 && to !in visited
+    fun canMove(p: Player, to: String, min: Int) = p.minutesLeft - min >= 1 && to !in visited
 
-    fun moveTo(to: String, min: Int, flowRate: Int): State {
-        val left = minutesLeft - min - 1
+    fun moveTo(p: Player, to: String, min: Int, flowRate: Int): State {
+        val left = p.minutesLeft - min - 1
         return State(
-            to,
-            left,
+            players.map { if (it === p) Player(left, to) else it },
             released + left * flowRate,
             visited + to
         )

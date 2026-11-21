@@ -19,7 +19,7 @@ class ProboscideaVolcaniumTest {
 
     @Test
     fun partA() {
-        assertEquals(1651,
-                     ProboscideaVolcanium().solveA(INPUT))
+        assertEquals(Pair(1651, 1707),
+                     ProboscideaVolcanium().solve(INPUT))
     }
 }
