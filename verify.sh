@@ -27,8 +27,9 @@ elif (( $YEAR < $DAY )); then
     DAY=$t
 fi
 
-echo "year: '$YEAR'"
-echo "day : '$DAY'"
+echo "Verifying..."
+echo "  year: '$YEAR'"
+echo "  day : '$DAY'"
 aocd $YEAR $DAY \
     | ./gradlew --quiet run --args="solve -p $YEAR $DAY" \
     | while IFS= read -r line; do
@@ -37,7 +38,7 @@ aocd $YEAR $DAY \
         if echo "$line" | grep -qE "^Part ${PART}:\t.+$"; then
             ANSWER=$(echo "$line" | cut -f 2)
             echo -n "Verify Part $PART ... "
-            python3 aocd_submit_wrapper.py "$YEAR" "$DAY" "$PART" "$ANSWER"
+            python3 util/aocd_submit_wrapper.py "$YEAR" "$DAY" "$PART" "$ANSWER"
         fi
     done
 done
