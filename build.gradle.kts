@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     implementation("com.github.ajalt.clikt:clikt-core:5.2.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.5.2")
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.slf4j:slf4j-jdk14:2.0.20")
 

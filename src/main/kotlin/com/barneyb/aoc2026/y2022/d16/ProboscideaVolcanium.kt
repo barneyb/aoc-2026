@@ -1,6 +1,8 @@
 package com.barneyb.aoc2026.y2022.d16
 
 import com.barneyb.aoc2026.Solver
+import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentSetOf
 import java.io.BufferedReader
 
 private const val START = "AA"
@@ -65,14 +67,19 @@ class ProboscideaVolcanium : Solver() {
         var best = State((1..players).map { Player(minutes) })
         val queue = ArrayDeque<State>()
         queue.add(best)
+        val closedMemo = mutableMapOf<Set<String>, Int>()
         while (queue.isNotEmpty()) {
             val curr = queue.removeFirst()
             val p = curr.players.maxBy { it.minutesLeft }
             if (curr.released > best.released) best = curr
             else {
-                val stillClosed = flowRates.asSequence()
-                    .filter { it.key !in curr.visited }
-                    .sumOf { it.value }
+                val stillClosed = closedMemo.computeIfAbsent(
+                    curr.visited,
+                    { viz ->
+                        flowRates.asSequence()
+                            .filter { it.key !in viz }
+                            .sumOf { it.value }
+                    })
                 if (curr.released + stillClosed * (p.minutesLeft - 1) < best.released) {
                     // opening every remaining valve this minute wouldn't be enough
                     continue
@@ -96,7 +103,7 @@ private data class Player(
 private data class State(
     val players: List<Player>,
     val released: Int = 0,
-    val visited: Set<String> = setOf(START),
+    val visited: PersistentSet<String> = persistentSetOf(START),
 ) {
     fun canMove(p: Player, to: String, min: Int) = p.minutesLeft - min >= 1 && to !in visited
 
@@ -105,7 +112,7 @@ private data class State(
         return State(
             players.map { if (it === p) Player(left, to) else it },
             released + left * flowRate,
-            visited + to
+            visited.adding(to)
         )
     }
 }
