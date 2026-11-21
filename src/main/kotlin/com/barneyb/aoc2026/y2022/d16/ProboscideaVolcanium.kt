@@ -67,12 +67,20 @@ class ProboscideaVolcanium : Solver() {
         queue.add(best)
         while (queue.isNotEmpty()) {
             val curr = queue.removeFirst()
+            val p = curr.players.maxBy { it.minutesLeft }
             if (curr.released > best.released) best = curr
-            for (p in curr.players) {
-                graph[p.at]!!.forEach { (to, min) ->
-                    if (curr.canMove(p, to, min)) {
-                        queue += curr.moveTo(p, to, min, flowRates[to]!!)
-                    }
+            else {
+                val stillClosed = flowRates.asSequence()
+                    .filter { it.key !in curr.visited }
+                    .sumOf { it.value }
+                if (curr.released + stillClosed * (p.minutesLeft - 1) < best.released) {
+                    // opening every remaining valve this minute wouldn't be enough
+                    continue
+                }
+            }
+            graph[p.at]!!.forEach { (to, min) ->
+                if (curr.canMove(p, to, min)) {
+                    queue.addFirst(curr.moveTo(p, to, min, flowRates[to]!!))
                 }
             }
         }
