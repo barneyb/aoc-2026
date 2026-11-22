@@ -7,8 +7,8 @@ class List : CoreCliktCommand() {
     override fun help(context: Context) = "List available solvers, one per line.\n" +
             "\n" +
             "Sample Output (tabs between fields):\n" +
-            "  2015\t01\tNotQuiteLisp\n" +
-            "  2026\t01\tMyNiftySolver"
+            "  2026\t01\tMyNiftySolver\n" +
+            "  2015\t01\tNotQuiteLisp"
 
     override fun run() {
         findSolvers().map {
