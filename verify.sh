@@ -35,7 +35,7 @@ aocd $YEAR $DAY \
     | while IFS= read -r line; do
     echo "$line"
     for PART in A B; do
-        if echo "$line" | grep -qE "^Part ${PART}:\t.+$"; then
+        if echo "$line" | grep -qE "^PART_${PART}:\t.+$"; then
             ANSWER=$(echo "$line" | cut -f 2)
             echo -n "Verify Part $PART ... "
             python3 util/aocd_submit_wrapper.py "$YEAR" "$DAY" "$PART" "$ANSWER"

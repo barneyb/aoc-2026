@@ -7,14 +7,14 @@ class List : CoreCliktCommand() {
     override fun help(context: Context) = "List available solvers, one per line.\n" +
             "\n" +
             "Sample Output (tabs between fields):\n" +
-            "  2026\t01\tMyNiftySolver\n" +
-            "  2015\t01\tNotQuiteLisp"
+            "\t2026\t01\tMyNiftySolver\n" +
+            "\t2015\t01\tNotQuiteLisp"
 
     override fun run() {
         findSolvers().map {
-            String.format("%04d\t%02d\t%s", it.year, it.day, it::class.simpleName)
+            String.format("%4d\t%2d\t%s", it.year, it.day, it::class.simpleName)
         }
             .sortedDescending()
-            .forEach { println(it) }
+            .forEach(::println)
     }
 }

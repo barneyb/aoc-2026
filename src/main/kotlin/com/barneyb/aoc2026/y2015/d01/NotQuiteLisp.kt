@@ -1,20 +1,24 @@
 package com.barneyb.aoc2026.y2015.d01
 
-import com.barneyb.aoc2026.SolveEach
+import com.barneyb.aoc2026.Solver
+import com.barneyb.aoc2026.cmd.UnparsedContext
 import java.io.BufferedReader
 
-class NotQuiteLisp : SolveEach() {
+class NotQuiteLisp : Solver<Int, Int>() {
 
-    override fun solveA(input: BufferedReader) = input.readLine()
-        .chars()
-        .map(this::valueOf)
+    override fun solveInternal(ctx: UnparsedContext) = ctx
+        .parse(BufferedReader::readLine)
+        .solveA(::solveA)
+        .solveB(::solveB)
+
+    fun solveA(input: String) = input.chars()
+        .map(::valueOf)
         .sum()
 
-    override fun solveB(input: BufferedReader): Int {
+    fun solveB(input: String): Int {
         var floor = 0
-        return 1 + input.readLine()
-            .chars()
-            .map(this::valueOf)
+        return 1 + input.chars()
+            .map(::valueOf)
             .takeWhile {
                 floor += it
                 floor >= 0

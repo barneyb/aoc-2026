@@ -1,11 +1,13 @@
 package com.barneyb.aoc2026
 
+import com.barneyb.aoc2026.cmd.UnparsedContext
+import com.barneyb.aoc2026.cmd.WithResult
 import java.io.BufferedReader
 
 private val RE_YEAR: Regex = "(y(ear)?|aoc)\\d{4}".toRegex()
 private val RE_DAY: Regex = "d(ay)?\\d{2}".toRegex()
 
-abstract class Solver {
+abstract class Solver<A : Any, B : Any> {
 
     /** The year this solver solves, derived from its package */
     val year by lazy {
@@ -28,30 +30,17 @@ abstract class Solver {
             ?: throw NoSuchElementException("Could not derive day from the package name: " + this::class.qualifiedName)
     }
 
-    abstract fun solve(input: BufferedReader): Pair<Any, Any>
+    abstract fun solveInternal(ctx: UnparsedContext): WithResult<out A, out B>
 
     @Suppress("unused")
-    fun solveAocd() = withAocdInput(year, day, this::solve)
+    fun solveString(input: String) = input.reader()
+        .buffered()
+        .use(::solveBare)
 
-    fun solve(input: String) = input.reader().buffered().use(this::solve)
-}
+    @Suppress("unused")
+    fun solveAocd() = withAocdInput(year, day, ::solveBare)
 
-abstract class SolveA : Solver() {
-    fun solveA(input: String) = solveA(input.reader().buffered())
+    private fun solveBare(reader: BufferedReader) = solveInternal(UnparsedContext(reader))
+        .done()
 
-    abstract fun solveA(input: BufferedReader): Any
-
-    override fun solve(input: BufferedReader): Pair<Any, Any> = Pair(solveA(input), "")
-}
-
-abstract class SolveEach : SolveA() {
-    fun solveB(input: String) = solveB(input.reader().buffered())
-
-    abstract fun solveB(input: BufferedReader): Any
-
-    override fun solve(input: BufferedReader): Pair<Any, Any> {
-        val inStr = input.readText()
-        return Pair(solveA(inStr.reader().buffered()),
-                    solveB(inStr.reader().buffered()))
-    }
 }

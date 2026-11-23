@@ -1,9 +1,9 @@
 package com.barneyb.aoc2026.y2022.d01
 
 import com.barneyb.aoc2026.Solver
-import java.io.BufferedReader
+import com.barneyb.aoc2026.cmd.UnparsedContext
 
-class CalorieCounting : Solver() {
+class CalorieCounting : Solver<Long, Long>() {
 
     // It's like a heap, but hard coded to three
     private data class Agg(var a: Long,
@@ -22,7 +22,10 @@ class CalorieCounting : Solver() {
         fun sum() = a + b + c
     }
 
-    override fun solve(input: BufferedReader): Pair<Any, Any> {
+    override fun solveInternal(ctx: UnparsedContext) =
+        ctx.solveBoth(::solve)
+
+    fun solve(input: String): Pair<Long, Long> {
         val agg = Agg(0, 0, 0)
         var curr = 0L
         input.lineSequence()

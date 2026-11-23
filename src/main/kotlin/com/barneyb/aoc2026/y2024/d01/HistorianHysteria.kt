@@ -1,16 +1,20 @@
 package com.barneyb.aoc2026.y2024.d01
 
-import com.barneyb.aoc2026.SolveA
-import java.io.BufferedReader
+import com.barneyb.aoc2026.Solver
+import com.barneyb.aoc2026.cmd.UnparsedContext
 import kotlin.math.abs
 
 private val WHITESPACE = "\\s+".toRegex()
 
-class HistorianHysteria : SolveA() {
-    override fun solveA(input: BufferedReader): Long {
+class HistorianHysteria : Solver<Long, Unit>() {
+    override fun solveInternal(ctx: UnparsedContext) =
+        ctx.solveA(::solveA)
+
+    fun solveA(input: String): Long {
         val left = mutableListOf<Long>()
         val right = mutableListOf<Long>()
         input.lineSequence()
+            .filter { it.isNotBlank() }
             .forEach { line ->
                 val parts = line.split(WHITESPACE)
                 left += parts[0].toLong()

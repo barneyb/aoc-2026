@@ -8,5 +8,5 @@ fun <T> withAocdInput(year: Int, day: Int, work: (BufferedReader) -> T): T =
         .inputReader()
         .use(work)
 
-fun <T> Solver.withAocdInput(work: (BufferedReader) -> T): T =
+fun <T> Solver<*, *>.withAocdInput(work: (BufferedReader) -> T): T =
     withAocdInput(this.year, this.day, work)

@@ -1,6 +1,5 @@
 package com.barneyb.aoc2026.cmd
 
-import com.barneyb.aoc2026.Solver
 import com.barneyb.aoc2026.withAocdInput
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.CoreCliktCommand
@@ -8,8 +7,9 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import java.time.Duration
-import kotlin.time.toKotlinDuration
+import java.io.BufferedReader
+
+typealias Work = (BufferedReader) -> Any
 
 class Solve : CoreCliktCommand() {
     val year by argument(help = "Year to solve").int()
@@ -18,11 +18,12 @@ class Solve : CoreCliktCommand() {
 
     override fun help(context: Context) = "Run a specific solver, then print its answers and timing info.\n" +
             "\n" +
-            "Sample Output (tabs after colons):\n" +
-            "  Part A:\t3\n" +
-            "  Part B:\t9\n" +
-            "  Nanos :\t797166\n" +
-            "  Time  :\t797.166us"
+            "Sample Output (tabs between fields):\n" +
+            "\tPARSE :         89.402ms        90.738583ms\n" +
+            "\tPART_A: 321     3.360834ms      94.103167ms\n" +
+            "\tPART_B: 1234    1.082042ms      95.186667ms\n" +
+            "\tNANOS : 95225375\n" +
+            "\tTIME  : 95.225375ms"
 
     override fun run() {
         run(year, day)
@@ -32,27 +33,23 @@ class Solve : CoreCliktCommand() {
         val solver = findSolvers().find { it.year == year && it.day == day }
             ?: throw IllegalArgumentException("No solver for $year day $day found")
 
-        val (result, nanos) = if (pipe) runStdIn(solver)
-        else runAocd(solver)
-
-        println("Part A:\t${result.first}")
-        println("Part B:\t${result.second}")
-        println("Nanos :\t${nanos}")
-        println("Time  :\t${Duration.ofNanos(nanos).toKotlinDuration()}")
+        val work: Work = {
+            solver.solveInternal(UnparsedContext(it))
+                .done()
+        }
+        if (pipe) runStdIn(work)
+        else solver.withAocdInput(work)
     }
 
-    private fun runStdIn(solver: Solver) = System.`in`.bufferedReader().use {
+    private fun runStdIn(work: Work) = System.`in`.bufferedReader().use { reader ->
         // give it up to a second to start
-        for (ignored in 1..5) {
-            if (it.ready()) break
+        repeat(5) {
+            if (reader.ready()) return@repeat
             Thread.sleep(200)
         }
-        if (!it.ready()) throw IllegalStateException("No input found on STDIN?!")
+        if (!reader.ready()) throw IllegalStateException("No input found on STDIN?!")
 
-        withNanos { solver.solve(it) }
+        work(reader)
     }
 
-    private fun runAocd(solver: Solver) = solver.withAocdInput {
-        withNanos { solver.solve(it) }
-    }
 }

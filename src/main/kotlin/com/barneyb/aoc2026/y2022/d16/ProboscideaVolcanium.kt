@@ -1,18 +1,24 @@
 package com.barneyb.aoc2026.y2022.d16
 
 import com.barneyb.aoc2026.Solver
+import com.barneyb.aoc2026.cmd.UnparsedContext
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
-import java.io.BufferedReader
 
 private const val START = "AA"
 
-class ProboscideaVolcanium : Solver() {
-    override fun solve(input: BufferedReader): Pair<Int, Int> {
-        val byName = input.lineSequence()
-            .map(Valve::from)
-            .associateBy(Valve::name)
+typealias Model = Map<String, Valve>
 
+class ProboscideaVolcanium : Solver<Int, Int>() {
+    override fun solveInternal(ctx: UnparsedContext) =
+        ctx.parse {
+            it.lineSequence()
+                .map(Valve::from)
+                .associateBy(Valve::name)
+        }
+            .solveBoth(::solve)
+
+    fun solve(byName: Map<String, Valve>): Pair<Int, Int> {
         // first, Floyd–Warshall
         val dist = mutableMapOf<String, MutableMap<String, Int>>()
         for ((name, _, tunnels) in byName.values) {

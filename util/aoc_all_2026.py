@@ -32,12 +32,12 @@ def solve(year, day, data):
     part_b = None
     nanos = None
     for line in proc.stdout.strip().splitlines():
-        (label, value) = line.split("\t")
-        if label == "Part A:":
+        (label, value) = line.split("\t")[:2]
+        if label == "PART_A:":
             part_a = value
-        elif label == "Part B:":
+        elif label == "PART_B:":
             part_b = value
-        elif label == "Nanos :":
+        elif label == "NANOS :":
             nanos = int(value)
     return part_a, part_b, nanos
 
