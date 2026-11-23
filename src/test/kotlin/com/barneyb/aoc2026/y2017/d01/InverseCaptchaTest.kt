@@ -13,6 +13,18 @@ class InverseCaptchaTest {
         "91212129, 9",
     )
     fun solveA(input: String, expected: Int) {
-        assertEquals(expected, InverseCaptcha().solveA(input))
+        assertEquals(expected, InverseCaptcha().solveA(input.toCharArray()))
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "1212, 6",
+        "1221, 0",
+        "123425, 4",
+        "123123, 12",
+        "12131415, 4",
+    )
+    fun solveB(input: String, expected: Int) {
+        assertEquals(expected, InverseCaptcha().solveB(input.toCharArray()))
     }
 }
