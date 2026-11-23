@@ -4,21 +4,26 @@ import com.barneyb.aoc2026.Solver
 import com.barneyb.aoc2026.cmd.UnparsedContext
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
+import java.io.BufferedReader
 
 private const val START = "AA"
 
-typealias Model = Map<String, Valve>
+data class Model(
+    val graph: Map<String, Map<String, Int>>,
+    val flowRates: Map<String, Int>,
+)
 
 class ProboscideaVolcanium : Solver<Int, Int>() {
     override fun solveInternal(ctx: UnparsedContext) =
-        ctx.parse {
-            it.lineSequence()
-                .map(Valve::from)
-                .associateBy(Valve::name)
-        }
-            .solveBoth(::solve)
+        ctx.parse(::parse)
+            .solveA { doWalk(it, 1, 30) }
+            .solveB { doWalk(it, 2, 26) }
 
-    fun solve(byName: Map<String, Valve>): Pair<Int, Int> {
+    private fun parse(reader: BufferedReader): Model {
+        val byName = reader.lineSequence()
+            .map(Valve::from)
+            .associateBy(Valve::name)
+
         // first, Floyd–Warshall
         val dist = mutableMapOf<String, MutableMap<String, Int>>()
         for ((name, _, tunnels) in byName.values) {
@@ -57,19 +62,17 @@ class ProboscideaVolcanium : Solver<Int, Int>() {
             }
         }
 
-        // finally, do the walks
         val flowRates = byName.values.associateBy(Valve::name,
                                                   Valve::flowRate)
-        return Pair(doWalk(flowRates, graph, 1, 30),
-                    doWalk(flowRates, graph, 2, 26))
+        return Model(graph, flowRates)
     }
 
     private fun doWalk(
-        flowRates: Map<String, Int>,
-        graph: Map<String, Map<String, Int>>,
+        model: Model,
         players: Int,
         minutes: Int,
     ): Int {
+        val (graph, flowRates) = model
         var best = State((1..players).map { Player(minutes) })
         val queue = ArrayDeque<State>()
         queue.add(best)
@@ -79,13 +82,11 @@ class ProboscideaVolcanium : Solver<Int, Int>() {
             val p = curr.players.maxBy { it.minutesLeft }
             if (curr.released > best.released) best = curr
             else {
-                val stillClosed = closedMemo.computeIfAbsent(
-                    curr.visited,
-                    { viz ->
-                        flowRates.asSequence()
-                            .filter { it.key !in viz }
-                            .sumOf { it.value }
-                    })
+                val stillClosed = closedMemo.computeIfAbsent(curr.visited) { visited ->
+                    flowRates.asSequence()
+                        .filter { it.key !in visited }
+                        .sumOf { it.value }
+                }
                 if (curr.released + stillClosed * (p.minutesLeft - 1) < best.released) {
                     // opening every remaining valve this minute wouldn't be enough
                     continue
