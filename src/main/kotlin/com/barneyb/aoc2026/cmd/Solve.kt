@@ -1,5 +1,6 @@
 package com.barneyb.aoc2026.cmd
 
+import com.barneyb.aoc2026.whenReady
 import com.barneyb.aoc2026.withAocdInput
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.CoreCliktCommand
@@ -14,7 +15,7 @@ typealias Work = (BufferedReader) -> Any
 class Solve : CoreCliktCommand() {
     val year by argument(help = "Year to solve").int()
     val day by argument(help = "Day to solve").int()
-    val pipe by option("-p", "--pipe", help = "Read input from STDIN, rather than using `aocd`.").flag()
+    val pipe by option("-p", "--pipe", help = "Read input from STDIN, rather than calling `aocd`.").flag()
 
     override fun help(context: Context) = "Run a specific solver, then print its answers and timing info.\n" +
             "\n" +
@@ -37,19 +38,9 @@ class Solve : CoreCliktCommand() {
             solver.solveInternal(UnparsedContext(it))
                 .done()
         }
-        if (pipe) runStdIn(work)
-        else solver.withAocdInput(work)
-    }
 
-    private fun runStdIn(work: Work) = System.`in`.bufferedReader().use { reader ->
-        // give it up to a second to start
-        repeat(5) {
-            if (reader.ready()) return@repeat
-            Thread.sleep(200)
-        }
-        if (!reader.ready()) throw IllegalStateException("No input found on STDIN?!")
-
-        work(reader)
+        if (pipe) System.`in`.bufferedReader().use { it.whenReady(work) }
+        else withAocdInput(this.year, this.day, work)
     }
 
 }
