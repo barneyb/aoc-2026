@@ -7,7 +7,7 @@ DAY="$2"
 
 if [ -z "$YEAR" ] && [ -z "$DAY" ]; then
     PUZZLE=$(git status --porcelain src/main/kotlin \
-        | grep -E '\.kt$' \
+        | grep -E '/y.+/d.+\.kt$' \
         | head -n 1 \
         | rev \
         | cut -d / -f 1 \

@@ -2,6 +2,7 @@ package com.barneyb.aoc2026.y2022.d16
 
 import com.barneyb.aoc2026.Solver
 import com.barneyb.aoc2026.cmd.Context
+import com.barneyb.aoc2026.cmd.Logger
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
 import java.io.BufferedReader
@@ -19,10 +20,11 @@ class ProboscideaVolcanium : Solver<Int, Int>() {
             .solveA { doWalk(it, 1, 30) }
             .solveB { doWalk(it, 2, 26) }
 
-    private fun parse(reader: BufferedReader): Model {
+    private fun parse(reader: BufferedReader, logger: Logger): Model {
         val byName = reader.lineSequence()
             .map(Valve::from)
             .associateBy(Valve::name)
+        logger.log("by Name")
 
         // first, Floyd–Warshall
         val dist = mutableMapOf<String, MutableMap<String, Int>>()
@@ -46,6 +48,7 @@ class ProboscideaVolcanium : Solver<Int, Int>() {
                 }
             }
         }
+        logger.log("Floyd–Warshall")
 
         // next, build the complete subgraph of useful valves (plus AA)
         val useful = byName.values
@@ -61,9 +64,12 @@ class ProboscideaVolcanium : Solver<Int, Int>() {
                 adj[j.name] = id[j.name]!!
             }
         }
+        logger.log("graph")
 
         val flowRates = byName.values.associateBy(Valve::name,
                                                   Valve::flowRate)
+        logger.log("flow rates")
+
         return Model(graph, flowRates)
     }
 
