@@ -50,7 +50,7 @@ exec("./gradlew", "test")
 
 name = Puzzle(year=year, day=day).title
 name = f"{name}"
-name = re.sub(r' +', '', name)
+name = re.sub(r'[ -]+', '', name)
 name = re.sub(r'[^a-zA-Z0-9]+', '_', name)
 
 root = "src/main/kotlin/com/barneyb/aoc2026"
