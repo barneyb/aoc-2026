@@ -1,12 +1,12 @@
 package com.barneyb.aoc2026.y2015.d01
 
 import com.barneyb.aoc2026.Solver
-import com.barneyb.aoc2026.cmd.UnparsedContext
+import com.barneyb.aoc2026.cmd.Context
 import java.io.BufferedReader
 
 class NotQuiteLisp : Solver<Int, Int>() {
 
-    override fun solveInternal(ctx: UnparsedContext) = ctx
+    override fun solveInternal(ctx: Context) = ctx
         .parse(BufferedReader::readLine)
         .solveA(::solveA)
         .solveB(::solveB)

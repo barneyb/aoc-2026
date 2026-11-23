@@ -35,7 +35,7 @@ class Solve : CoreCliktCommand() {
             ?: throw IllegalArgumentException("No solver for $year day $day found")
 
         val work: Work = {
-            solver.solveInternal(UnparsedContext(it))
+            solver.solveInternal(Context(it))
                 .done()
         }
 

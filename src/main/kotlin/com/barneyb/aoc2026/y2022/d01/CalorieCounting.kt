@@ -1,7 +1,7 @@
 package com.barneyb.aoc2026.y2022.d01
 
 import com.barneyb.aoc2026.Solver
-import com.barneyb.aoc2026.cmd.UnparsedContext
+import com.barneyb.aoc2026.cmd.Context
 
 class CalorieCounting : Solver<Long, Long>() {
 
@@ -22,7 +22,7 @@ class CalorieCounting : Solver<Long, Long>() {
         fun sum() = a + b + c
     }
 
-    override fun solveInternal(ctx: UnparsedContext) =
+    override fun solveInternal(ctx: Context) =
         ctx.solveBoth(::solve)
 
     fun solve(input: String): Pair<Long, Long> {

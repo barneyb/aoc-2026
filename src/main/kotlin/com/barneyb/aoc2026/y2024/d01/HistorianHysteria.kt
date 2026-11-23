@@ -1,13 +1,13 @@
 package com.barneyb.aoc2026.y2024.d01
 
 import com.barneyb.aoc2026.Solver
-import com.barneyb.aoc2026.cmd.UnparsedContext
+import com.barneyb.aoc2026.cmd.Context
 import kotlin.math.abs
 
 private val WHITESPACE = "\\s+".toRegex()
 
 class HistorianHysteria : Solver<Long, Unit>() {
-    override fun solveInternal(ctx: UnparsedContext) =
+    override fun solveInternal(ctx: Context) =
         ctx.solveA(::solveA)
 
     fun solveA(input: String): Long {

@@ -18,7 +18,7 @@ enum class Type {
 
 private val MAX_TYPE_LEN: Int = Type.entries.maxOf { it.name.length }
 
-interface Context {
+interface Logging {
     val out: PrintStream
     val start: TimeMark
     var prev: TimeMark
@@ -58,17 +58,23 @@ interface WithA<M : Any, A : Any, B : Any> : SolveB<M, A, B>, WithResult<A, B>
 
 interface WithB<M : Any, A : Any, B : Any> : SolveA<M, A, B>, WithResult<A, B>
 
-@Suppress("unused")
-data class UnparsedContext(
+data class Context(
     val input: BufferedReader,
     override val out: PrintStream = System.out,
     override val start: TimeMark = now(),
     override var prev: TimeMark = start,
-) : Context {
+) : Logging {
 
+    @Suppress("unused")
     fun <A : Any> solveA(solver: (String) -> A) = read().solveA(solver)
+
+    @Suppress("unused")
     fun <B : Any> solveB(solver: (String) -> B) = read().solveB(solver)
+
+    @Suppress("unused")
     fun <A : Any, B : Any> solveBoth(solver: (String) -> Pair<A, B>) = read().solveBoth(solver)
+
+    @Suppress("unused")
     fun <M : Any> parse(parser: (BufferedReader) -> M): NoResults<M, Unit, Unit> {
         val model = parser(input)
         log(Type.PARSE, "")
@@ -85,7 +91,7 @@ data class ParsedContext<M : Any, A : Any, B : Any>(
     override var prev: TimeMark,
     private var partA: A,
     private var partB: B,
-) : Context, NoResults<M, A, B>, WithA<M, A, B>, WithB<M, A, B> {
+) : Logging, NoResults<M, A, B>, WithA<M, A, B>, WithB<M, A, B> {
 
     override fun <Alt : Any> solveA(solver: (M) -> Alt): WithA<M, Alt, B> {
         val partA = solver(model)

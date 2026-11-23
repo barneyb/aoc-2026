@@ -1,7 +1,7 @@
 package com.barneyb.aoc2026.y2022.d16
 
 import com.barneyb.aoc2026.Solver
-import com.barneyb.aoc2026.cmd.UnparsedContext
+import com.barneyb.aoc2026.cmd.Context
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
 import java.io.BufferedReader
@@ -14,7 +14,7 @@ data class Model(
 )
 
 class ProboscideaVolcanium : Solver<Int, Int>() {
-    override fun solveInternal(ctx: UnparsedContext) =
+    override fun solveInternal(ctx: Context) =
         ctx.parse(::parse)
             .solveA { doWalk(it, 1, 30) }
             .solveB { doWalk(it, 2, 26) }

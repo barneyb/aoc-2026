@@ -1,6 +1,6 @@
 package com.barneyb.aoc2026
 
-import com.barneyb.aoc2026.cmd.UnparsedContext
+import com.barneyb.aoc2026.cmd.Context
 import com.barneyb.aoc2026.cmd.WithResult
 import java.io.BufferedReader
 
@@ -30,7 +30,7 @@ abstract class Solver<A : Any, B : Any> {
             ?: throw NoSuchElementException("Could not derive day from the package name: " + this::class.qualifiedName)
     }
 
-    abstract fun solveInternal(ctx: UnparsedContext): WithResult<out A, out B>
+    abstract fun solveInternal(ctx: Context): WithResult<out A, out B>
 
     @Suppress("unused")
     fun solveString(input: String) = input.reader()
@@ -40,7 +40,7 @@ abstract class Solver<A : Any, B : Any> {
     @Suppress("unused")
     fun solveAocd() = withAocdInput(year, day, ::solveBare)
 
-    private fun solveBare(reader: BufferedReader) = solveInternal(UnparsedContext(reader))
+    private fun solveBare(reader: BufferedReader) = solveInternal(Context(reader))
         .done()
 
 }
