@@ -6,8 +6,8 @@ YEAR="$1"
 DAY="$2"
 
 if [ -z "$YEAR" ] && [ -z "$DAY" ]; then
-    PUZZLE=$(git status --porcelain \
-        | grep -F .kt \
+    PUZZLE=$(git status --porcelain src/main/kotlin \
+        | grep -E '\.kt$' \
         | head -n 1 \
         | rev \
         | cut -d / -f 1 \
@@ -18,9 +18,9 @@ if [ -z "$YEAR" ] && [ -z "$DAY" ]; then
             exit 1
         fi
     LINE=$(./gradlew --quiet run --args=list | grep "$PUZZLE")
-    YEAR=$(echo "$LINE" | cut -c 1-4)
-    DAY=$(echo "$LINE" | cut -c 6-7 | sed -Ee 's/^0+//')
-elif (( $YEAR < $DAY )); then
+    YEAR=$(echo "$LINE" | cut -f 1)
+    DAY=$(echo "$LINE" | cut -f 2 | sed -Ee 's/^0+//')
+elif (( YEAR < DAY )); then
     # flip 'em around
     t=$YEAR
     YEAR=$DAY
@@ -30,7 +30,7 @@ fi
 echo "Verifying..."
 echo "  year: '$YEAR'"
 echo "  day : '$DAY'"
-aocd $YEAR $DAY \
+aocd "$YEAR" "$DAY" \
     | ./gradlew --quiet run --args="solve -p $YEAR $DAY" \
     | while IFS= read -r line; do
     echo "$line"

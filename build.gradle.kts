@@ -11,6 +11,9 @@ repositories {
 }
 
 dependencies {
+    // The kotlin compiler uses annotations from a newer version than it bundles
+    compileOnly("org.jetbrains:annotations:26.0.2")
+
     implementation("com.github.ajalt.clikt:clikt-core:5.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.5.2")
     implementation("org.reflections:reflections:0.10.2")
