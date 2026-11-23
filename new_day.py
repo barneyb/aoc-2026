@@ -70,19 +70,19 @@ package com.barneyb.aoc2026.{pkg}
 import com.barneyb.aoc2026.Solver
 import com.barneyb.aoc2026.cmd.Context
 
-class {name} : Solver<Any, Any>() {'{'}
+class {name} : Solver<Any, Any>() {{
 
     override fun solveInternal(ctx: Context) = ctx
-//        .parse {'{'} it.readLine() {'}'}
+//        .parse {{ it.readLine() }}
         .solveA(::solveA)
 
     fun solveA(input: String) = input.length
 
-{'}'}
+}}
 
-fun main() {'{'}
+fun main() {{
     {name}().solveAocd()
-{'}'}
+}}
 """)
 
 git("checkout", "--no-track", "-b", f"{dir}/{name}", "origin/master")
