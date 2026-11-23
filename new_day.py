@@ -73,7 +73,7 @@ import com.barneyb.aoc2026.cmd.Context
 class {name} : Solver<Any, Any>() {'{'}
 
     override fun solveInternal(ctx: Context) = ctx
-//        .parse(BufferedReader::readLine)
+//        .parse {'{'} it.readLine() {'}'}
         .solveA(::solveA)
 
     fun solveA(input: String) = input.length
