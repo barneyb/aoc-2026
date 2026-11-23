@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 class HistorianHysteriaTest {
 
     @Test
-    fun partA() {
+    fun examples() {
         val input = "3   4\n" +
                 "4   3\n" +
                 "2   5\n" +
@@ -14,7 +14,7 @@ class HistorianHysteriaTest {
                 "3   9\n" +
                 "3   3\n"
 
-        assertEquals(11L,
-                     HistorianHysteria().solveA(input))
+        assertEquals(Pair(11L, 31L),
+                     HistorianHysteria().solveString(input))
     }
 }
