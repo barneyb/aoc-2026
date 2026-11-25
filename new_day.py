@@ -80,7 +80,7 @@ import com.barneyb.aoc2026.cmd.Context
 class {name} : Solver<Any, Any>() {{
 
     override fun solveInternal(ctx: Context) = ctx
-//        .parse {{ it.readLine() }}
+//        .parse {{ it.lines().toList() }}
         .solveA(::solveA)
 
     fun solveA(input: String) = input.length
@@ -100,10 +100,14 @@ import kotlin.test.assertEquals
 
 class {name}Test {{
 
-    @Test
-    fun solveA() {{
-        assertEquals(6,
-                     {name}().solveA("oh hai"))
+    private val solver : {name}()
+
+    @ParameterizedTest
+    @CsvSource("oh hai, 6",
+               "bonjour, 7")
+    fun solveA(str: String, len: Int) {{
+        assertEquals(len,
+                     solver.solveA(str))
     }}
 
 }}
