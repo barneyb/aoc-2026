@@ -18,7 +18,7 @@ Valve JJ has flow rate=21; tunnel leads to valve II
 class ProboscideaVolcaniumTest {
 
     @Test
-    fun partA() {
+    fun bothParts() {
         assertEquals(Pair(1651, 1707),
                      ProboscideaVolcanium().solveString(INPUT))
     }

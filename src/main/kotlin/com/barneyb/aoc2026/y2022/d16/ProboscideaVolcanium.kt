@@ -3,27 +3,35 @@ package com.barneyb.aoc2026.y2022.d16
 import com.barneyb.aoc2026.Solver
 import com.barneyb.aoc2026.cmd.Context
 import com.barneyb.aoc2026.cmd.Logger
-import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toPersistentSet
 import java.io.BufferedReader
 
 private const val START = "AA"
+
+private const val MINUTES = 30
+
+private const val MINUTES_WITH_ELEPHANT = 26
 
 data class Model(
     val graph: Map<String, Map<String, Int>>,
     val flowRates: Map<String, Int>,
 )
 
-class ProboscideaVolcanium : Solver<Int, Int>() {
+class ProboscideaVolcanium : Solver<Int, Any>() {
     override fun solveInternal(ctx: Context) =
         ctx.parse(::parse)
-            .solveA { doWalk(it, 1, 30) }
-            .solveB { doWalk(it, 2, 26) }
+            .solveA { doWalk(it, MINUTES) }
+            .solveB { bestSubsets(it, ctx) }
+
 
     private fun parse(reader: BufferedReader, logger: Logger): Model {
         val byName = reader.lineSequence()
             .map(Valve::from)
             .associateBy(Valve::name)
+        byName[START].also {
+            if (it == null) throw IllegalArgumentException("No '$START' room found?!")
+            else if (it.canOpen) throw IllegalArgumentException("Valve at '$START' has flow?!")
+        }
         logger.log("by Name")
 
         // first, Floyd–Warshall
@@ -50,24 +58,25 @@ class ProboscideaVolcanium : Solver<Int, Int>() {
         }
         logger.log("Floyd–Warshall")
 
-        // next, build the complete subgraph of useful valves (plus AA)
+        // next, build the complete subgraph of useful valves (incl AA)
         val useful = byName.values
             .stream()
             .filter { it.canOpen || it.name == START }
+            .map { it.name }
             .toList()
         val graph = mutableMapOf<String, MutableMap<String, Int>>()
         for (i in useful) {
-            val adj = graph.computeIfAbsent(i.name) { mutableMapOf() }
-            val id = dist[i.name]!!
+            val adj = graph.computeIfAbsent(i) { mutableMapOf() }
+            val id = dist[i]!!
             for (j in useful) {
-                if (i == j) continue
-                adj[j.name] = id[j.name]!!
+                // never need to go back to the start
+                if (i == j || j == START) continue
+                adj[j] = id[j]!!
             }
         }
-        logger.log("graph")
+        logger.log("graph (N=${graph.size})")
 
-        val flowRates = byName.values.associateBy(Valve::name,
-                                                  Valve::flowRate)
+        val flowRates = useful.associateWith { byName[it]!!.flowRate }
         logger.log("flow rates")
 
         return Model(graph, flowRates)
@@ -75,57 +84,89 @@ class ProboscideaVolcanium : Solver<Int, Int>() {
 
     private fun doWalk(
         model: Model,
-        players: Int,
         minutes: Int,
     ): Int {
         val (graph, flowRates) = model
-        var best = State((1..players).map { Player(minutes) })
+        var best = State(minutes,
+                         flowRates.asSequence()
+                             .filter { it.key in graph }
+                             .sumOf { it.value })
         val queue = ArrayDeque<State>()
         queue.add(best)
-        val closedMemo = mutableMapOf<Set<String>, Int>()
         while (queue.isNotEmpty()) {
             val curr = queue.removeFirst()
-            val p = curr.players.maxBy { it.minutesLeft }
             if (curr.released > best.released) best = curr
-            else {
-                val stillClosed = closedMemo.computeIfAbsent(curr.visited) { visited ->
-                    flowRates.asSequence()
-                        .filter { it.key !in visited }
-                        .sumOf { it.value }
+            else if (curr.maxPossible < best.maxPossible) continue
+
+            graph[curr.at]!!
+                .forEach { (to, min) ->
+                    if (to in graph && curr.canMove(to, min)) {
+                        queue.addFirst(curr.moveTo(to, min, flowRates[to]!!))
+                    }
                 }
-                if (curr.released + stillClosed * (p.minutesLeft - 1) < best.released) {
-                    // opening every remaining valve this minute wouldn't be enough
-                    continue
-                }
-            }
-            graph[p.at]!!.forEach { (to, min) ->
-                if (curr.canMove(p, to, min)) {
-                    queue.addFirst(curr.moveTo(p, to, min, flowRates[to]!!))
-                }
-            }
         }
         return best.released
     }
+
+    private fun bestSubsets(
+        model: Model,
+        logger: Logger,
+    ): Int {
+        val (graph, flowRates) = model
+        val subsets = mutableListOf(listOf<String>())
+        for (k in graph.keys) {
+            if (k == START) continue
+            subsets.addAll(subsets.map { it + k })
+        }
+        logger.log("Subsets (${subsets.size})")
+
+        val stats = mutableMapOf<Set<String>, Stat>()
+        // skip the empty and full set - that was part A
+        for (ss in subsets.subList(1, subsets.size - 1)) {
+            val subgraph = graph.toMutableMap()
+            ss.forEach(subgraph::remove)
+            stats[subgraph.keys.toPersistentSet()] = Stat(
+                (ss + START).toPersistentSet(),
+                doWalk(Model(subgraph, flowRates), MINUTES_WITH_ELEPHANT)
+            )
+        }
+        logger.log("Stats (${stats.size})")
+
+        var best = -1
+        stats.values.forEach {
+            val recip = stats[it.reciprocal] ?: throw IllegalArgumentException("No reciprocal of ${it.reciprocal}")
+            val total = it.released + recip.released
+            if (total > best) best = total
+        }
+
+        return best
+    }
 }
 
-private data class Player(
-    val minutesLeft: Int,
-    val at: String = START,
-)
-
 private data class State(
-    val players: List<Player>,
+    val minutesLeft: Int,
+    val availableFlow: Int,
+    val at: String = START,
     val released: Int = 0,
-    val visited: PersistentSet<String> = persistentSetOf(START),
+    val visited: Set<String> = setOf(START),
 ) {
-    fun canMove(p: Player, to: String, min: Int) = p.minutesLeft - min >= 1 && to !in visited
+    val maxPossible get() = released + availableFlow * (minutesLeft - 1)
 
-    fun moveTo(p: Player, to: String, min: Int, flowRate: Int): State {
-        val left = p.minutesLeft - min - 1
+    fun canMove(to: String, min: Int) = minutesLeft - min >= 1 && to !in visited
+
+    fun moveTo(to: String, min: Int, flowRate: Int): State {
+        val left = minutesLeft - min - 1
         return State(
-            players.map { if (it === p) Player(left, to) else it },
+            left,
+            availableFlow - flowRate,
+            to,
             released + left * flowRate,
-            visited.adding(to)
+            visited + to
         )
     }
 }
+
+private data class Stat(
+    val reciprocal: Set<String>,
+    val released: Int,
+)
