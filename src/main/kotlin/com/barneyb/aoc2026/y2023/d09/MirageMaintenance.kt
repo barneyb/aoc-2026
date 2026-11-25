@@ -12,11 +12,14 @@ class MirageMaintenance : Solver<Int, Any>() {
                 .toList()
         }
         .solveA(::solveA)
+        .solveB(::solveB)
 
-    fun solveA(histories: List<List<Int>>): Int {
-        return histories.map(this::predict)
-            .sum()
-    }
+    fun solveA(histories: List<List<Int>>) = histories.map(this::predict)
+        .sum()
+
+    fun solveB(histories: List<List<Int>>) = histories.map(List<Int>::reversed)
+        .map(this::predict)
+        .sum()
 
     fun predict(history: List<Int>): Int {
         if (history.all { it == 0 }) return 0
