@@ -103,7 +103,8 @@ class {name}Test {{
     @Test
     fun solveA() {{
         assertEquals(6,
-                     {name}().solveA("oh hai"))
+                     {name}().solveString("oh hai")
+                         .first)
     }}
 
 }}
