@@ -1,5 +1,6 @@
 package com.barneyb.aoc2026.cmd
 
+import com.barneyb.aoc2026.MutableCell
 import java.io.BufferedReader
 import java.io.PrintStream
 import kotlin.time.TimeMark
@@ -21,15 +22,15 @@ private val MAX_TYPE_LEN: Int = Type.entries.maxOf { it.name.length }
 interface Logger {
     val out: PrintStream
     val start: TimeMark
-    var prev: TimeMark
+    val prev: MutableCell<TimeMark>
 
     fun logBare(type: Type, message: Any) {
         out.println("${type.name.padEnd(MAX_TYPE_LEN)}:\t$message")
     }
 
     fun log(type: Type, message: Any) {
-        val step = prev.elapsedNow()
-        prev = now()
+        val step = prev.value.elapsedNow()
+        prev.value = now()
         val total = start.elapsedNow()
         out.println("${type.name.padEnd(6)}:\t$message\t$step\t$total")
     }
@@ -62,7 +63,7 @@ data class Context(
     val input: BufferedReader,
     override val out: PrintStream = System.out,
     override val start: TimeMark = now(),
-    override var prev: TimeMark = start,
+    override var prev: MutableCell<TimeMark> = MutableCell(start),
 ) : Logger {
 
     @Suppress("unused")
@@ -92,7 +93,7 @@ data class ParsedContext<M : Any, A : Any, B : Any>(
     val model: M,
     override val out: PrintStream,
     override val start: TimeMark,
-    override var prev: TimeMark,
+    override var prev: MutableCell<TimeMark>,
     private var partA: A,
     private var partB: B,
 ) : Logger, NoResults<M, A, B>, WithA<M, A, B>, WithB<M, A, B> {
