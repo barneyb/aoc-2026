@@ -2,31 +2,30 @@ package com.barneyb.aoc2026.intcode.vm
 
 class VM {
 
-    private val store: MutableList<Int> = mutableListOf()
+    private val memory: MutableList<Int> = mutableListOf()
+    private var ip = 0
 
     fun load(vararg program: Int) {
-        store.addAll(program.toList())
+        memory.addAll(program.toList())
     }
 
     fun load(program: List<Int>) {
-        store.addAll(program)
+        memory.addAll(program)
     }
 
     fun execute() {
-        var ip = 0
         while (true) {
-            val op = read(ip++)
-            when (op) {
+            when (val op = next()) {
                 1    -> {
-                    val a = read(read(ip++))
-                    val b = read(read(ip++))
-                    val c = read(ip++)
+                    val a = read(next())
+                    val b = read(next())
+                    val c = next()
                     write(c, a + b)
                 }
                 2    -> {
-                    val a = read(read(ip++))
-                    val b = read(read(ip++))
-                    val c = read(ip++)
+                    val a = read(next())
+                    val b = read(next())
+                    val c = next()
                     write(c, a * b)
                 }
                 99   -> return
@@ -35,11 +34,13 @@ class VM {
         }
     }
 
-    fun read(pos: Int): Int = store[pos]
+    private fun next() = read(ip++)
 
-    fun write(pos: Int, value: Int) {
-        store[pos] = value
+    fun read(address: Int): Int = memory[address]
+
+    fun write(address: Int, value: Int) {
+        memory[address] = value
     }
 
-    fun dump(): List<Int> = store.toList()
+    fun dump(): List<Int> = memory.toList()
 }
