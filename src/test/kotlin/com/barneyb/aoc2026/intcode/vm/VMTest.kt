@@ -6,7 +6,7 @@ import kotlin.test.Test
 class VMTest {
 
     @Test
-    fun opcodesOneandTwo() {
+    fun opcodesOneAndTwo() {
         assertEquals(listOf(
             3500, 9, 10, 70,
             2, 3, 11, 0,
@@ -53,4 +53,37 @@ class VMTest {
             dump()
         })
     }
+
+    @Test
+    fun inputOutput() {
+        assertEquals(42, VM().run {
+            load(3, 0, 4, 0, 99)
+            stdIn(42)
+            execute()
+            val result = stdOut()
+            val more = stdOutList()
+            if (more.isNotEmpty()) throw IllegalStateException("Unexpected output: $more")
+            result
+        })
+    }
+
+    @Test
+    fun thirtyThreeTimesImmediateThree() {
+        assertEquals(listOf(1002, 4, 3, 4, 99), VM().run {
+            load(1002, 4, 3, 4, 33)
+            execute()
+            dump()
+        })
+    }
+
+    @Test
+    fun oneHundredMinusOne() {
+        assertEquals(listOf(1101, 100, -1, 4, 99), VM().run {
+            load(1101, 100, -1, 4, 0)
+            execute()
+            dump()
+        })
+    }
+
+
 }
