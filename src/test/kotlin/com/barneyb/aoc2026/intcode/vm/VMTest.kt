@@ -9,7 +9,7 @@ class VMTest {
 
     @Test
     fun opcodesOneAndTwo() {
-        assertEquals(listOf(
+        assertEquals(listOf<Long>(
             3500, 9, 10, 70,
             2, 3, 11, 0,
             99,
@@ -22,7 +22,7 @@ class VMTest {
 
     @Test
     fun onePlusOne() {
-        assertEquals(listOf(2, 0, 0, 0, 99), VM().run {
+        assertEquals(listOf<Long>(2, 0, 0, 0, 99), VM().run {
             load(1, 0, 0, 0, 99)
             execute()
             dump()
@@ -31,7 +31,7 @@ class VMTest {
 
     @Test
     fun threeTimeTwo() {
-        assertEquals(listOf(2, 3, 0, 6, 99), VM().run {
+        assertEquals(listOf<Long>(2, 3, 0, 6, 99), VM().run {
             load(2, 3, 0, 3, 99)
             execute()
             dump()
@@ -40,7 +40,7 @@ class VMTest {
 
     @Test
     fun ninetyNineSquared() {
-        assertEquals(listOf(2, 4, 4, 5, 99, 9801), VM().run {
+        assertEquals(listOf<Long>(2, 4, 4, 5, 99, 9801), VM().run {
             load(2, 4, 4, 5, 99, 0)
             execute()
             dump()
@@ -49,7 +49,7 @@ class VMTest {
 
     @Test
     fun fiveTimeSix() {
-        assertEquals(listOf(30, 1, 1, 4, 2, 5, 6, 0, 99), VM().run {
+        assertEquals(listOf<Long>(30, 1, 1, 4, 2, 5, 6, 0, 99), VM().run {
             load(1, 1, 1, 4, 99, 5, 6, 0, 99)
             execute()
             dump()
@@ -71,7 +71,7 @@ class VMTest {
 
     @Test
     fun thirtyThreeTimesImmediateThree() {
-        assertEquals(listOf(1002, 4, 3, 4, 99), VM().run {
+        assertEquals(listOf<Long>(1002, 4, 3, 4, 99), VM().run {
             load(1002, 4, 3, 4, 33)
             execute()
             dump()
@@ -80,7 +80,7 @@ class VMTest {
 
     @Test
     fun oneHundredMinusOne() {
-        assertEquals(listOf(1101, 100, -1, 4, 99), VM().run {
+        assertEquals(listOf<Long>(1101, 100, -1, 4, 99), VM().run {
             load(1101, 100, -1, 4, 0)
             execute()
             dump()
@@ -93,7 +93,7 @@ class VMTest {
         "8, 1",
         "9, 0",
     )
-    fun equalsEightPosition(input: Int, expected: Int) {
+    fun equalsEightPosition(input: Int, expected: Long) {
         assertEquals(expected, VM().run {
             load(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8)
             stdIn(input)
@@ -108,7 +108,7 @@ class VMTest {
         "8, 0",
         "9, 0",
     )
-    fun lessThanEightPosition(input: Int, expected: Int) {
+    fun lessThanEightPosition(input: Int, expected: Long) {
         assertEquals(expected, VM().run {
             load(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8)
             stdIn(input)
@@ -123,7 +123,7 @@ class VMTest {
         "8, 1",
         "9, 0",
     )
-    fun equalsEightImmediate(input: Int, expected: Int) {
+    fun equalsEightImmediate(input: Int, expected: Long) {
         assertEquals(expected, VM().run {
             load(3, 3, 1108, -1, 8, 3, 4, 3, 99)
             stdIn(input)
@@ -138,7 +138,7 @@ class VMTest {
         "8, 0",
         "9, 0",
     )
-    fun lessThanEightImmediate(input: Int, expected: Int) {
+    fun lessThanEightImmediate(input: Int, expected: Long) {
         assertEquals(expected, VM().run {
             load(3, 3, 1107, -1, 8, 3, 4, 3, 99)
             stdIn(input)
@@ -153,7 +153,7 @@ class VMTest {
         "0, 0",
         "1, 1",
     )
-    fun notEqualsZeroImmediate(input: Int, expected: Int) {
+    fun notEqualsZeroImmediate(input: Int, expected: Long) {
         assertEquals(expected, VM().run {
             load(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1)
             stdIn(input)
@@ -168,7 +168,7 @@ class VMTest {
         "0, 0",
         "1, 1",
     )
-    fun notEqualsZeroPosition(input: Int, expected: Int) {
+    fun notEqualsZeroPosition(input: Int, expected: Long) {
         assertEquals(expected, VM().run {
             load(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9)
             stdIn(input)
@@ -185,7 +185,7 @@ class VMTest {
         "9, 1001",
         "15, 1001",
     )
-    fun partitionAtEight(input: Int, expected: Int) {
+    fun partitionAtEight(input: Int, expected: Long) {
         assertEquals(expected, VM().run {
             load(
                 3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
@@ -193,6 +193,19 @@ class VMTest {
                 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99,
             )
             stdIn(input)
+            execute()
+            stdOut()
+        })
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "'1102,34915192,34915192,7,4,7,99,0', 1219070632396864",
+        "'104,1125899906842624,99', 1125899906842624",
+    )
+    fun largeNumbers(program: String, expected: Long) {
+        assertEquals(expected, VM().run {
+            load(VM.parse(program))
             execute()
             stdOut()
         })
