@@ -66,6 +66,28 @@ class VM {
                     val a = param()
                     output.addLast(a)
                 }
+                5 -> {
+                    val a = param()
+                    val b = param()
+                    if (a != 0) ip = b
+                }
+                6 -> {
+                    val a = param()
+                    val b = param()
+                    if (a == 0) ip = b
+                }
+                7 -> {
+                    val a = param()
+                    val b = param()
+                    val c = next()
+                    write(c, if (a < b) 1 else 0)
+                }
+                8 -> {
+                    val a = param()
+                    val b = param()
+                    val c = next()
+                    write(c, if (a == b) 1 else 0)
+                }
                 99   -> return
                 else -> throw UnknownOpCode(op)
             }
