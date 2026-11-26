@@ -9,11 +9,7 @@ class _1202ProgramAlarm : Solver<Any, Any>() {
     private val TARGET = 19690720
 
     override fun solveInternal(ctx: Context) = ctx
-        .parse {
-            it.readText()
-                .split(",")
-                .map { it.trim().toInt() }
-        }
+        .parse(VM::parse)
         .solveA(::solveA)
         .solveB(::solveB)
 
@@ -24,6 +20,7 @@ class _1202ProgramAlarm : Solver<Any, Any>() {
         execute()
         read(0)
     }
+
     fun solveB(program: List<Int>): Int {
         for (noun in 0..99)
             for (verb in 0..99)

@@ -51,6 +51,7 @@ exec("./gradlew", "test")
 
 name = Puzzle(year=year, day=day).title
 name = f"{name}"
+name = "".join([w.capitalize() for w in name.split(" ")])
 name = re.sub(r'[^a-zA-Z0-9]+', '', name)
 if '0' <= name[0] <= '9':
     name = "_" + name
