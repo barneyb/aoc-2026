@@ -95,12 +95,13 @@ fun main() {{
 add_file(Path(re.sub(r'/main/', "/test/", root), dir, f"{name}Test.kt"), f"""\
 package com.barneyb.aoc2026.{pkg}
 
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.assertEquals
 
 class {name}Test {{
 
-    private val solver : {name}()
+    private val solver = {name}()
 
     @ParameterizedTest
     @CsvSource("oh hai, 6",
