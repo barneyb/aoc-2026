@@ -3,6 +3,7 @@ package com.barneyb.aoc2026.y2022.d16
 import com.barneyb.aoc2026.Solver
 import com.barneyb.aoc2026.cmd.Context
 import com.barneyb.aoc2026.cmd.Logger
+import com.barneyb.aoc2026.subsetsOf
 import kotlinx.collections.immutable.toPersistentSet
 import java.io.BufferedReader
 
@@ -113,11 +114,7 @@ class ProboscideaVolcanium : Solver<Int, Any>() {
         logger: Logger,
     ): Int {
         val (graph, flowRates) = model
-        val subsets = mutableListOf(listOf<String>())
-        for (k in graph.keys) {
-            if (k == START) continue
-            subsets.addAll(subsets.map { it + k })
-        }
+        val subsets = subsetsOf(graph.keys - START)
         logger.log("Subsets (${subsets.size})")
 
         val stats = mutableMapOf<Set<String>, Stat>()
