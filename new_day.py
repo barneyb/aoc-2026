@@ -52,6 +52,8 @@ exec("./gradlew", "test")
 name = Puzzle(year=year, day=day).title
 name = f"{name}"
 name = re.sub(r'[^a-zA-Z0-9]+', '', name)
+if '0' <= name[0] <= '9':
+    name = "_" + name
 
 root = "src/main/kotlin/com/barneyb/aoc2026"
 if year == 2026:
