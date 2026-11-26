@@ -22,3 +22,4 @@ fi
 git checkout master
 git merge --no-edit "$BRANCH"
 ./gradlew test
+git push
