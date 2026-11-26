@@ -8,11 +8,25 @@ class CubeConundrum : Solver<Any, Any>() {
     override fun solveInternal(ctx: Context) = ctx
         .parse { it.lines().map(Game::from).toList() }
         .solveA(::solveA)
+        .solveB(::solveB)
 
     fun solveA(games: List<Game>) = games.stream()
         .filter { it.turns.all { it.red <= 12 && it.green <= 13 && it.blue <= 14 } }
         .mapToInt { it.num }
         .sum()
+
+    fun solveB(games: List<Game>) = games.stream()
+        .mapToInt {
+            (maxOf(it.turns) { it.red }
+                    * maxOf(it.turns) { it.green }
+                    * maxOf(it.turns) { it.blue })
+        }
+        .sum()
+
+    private fun maxOf(
+        turns: List<Turn>,
+        getter: (Turn) -> Int,
+    ) = turns.stream().mapToInt(getter).max().orElse(0)
 }
 
 data class Game(
