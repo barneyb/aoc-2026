@@ -13,11 +13,17 @@ class VM {
                 .map { it.trim().toInt() }
     }
 
+    private data class OnInput(val c: Int)
+
     private val memory: MutableList<Int> = mutableListOf()
     private val input = ArrayDeque<Int>()
+    private var onInput: OnInput? = null
     private val output = ArrayDeque<Int>()
     private var ip = 0
     private var instruction = 0
+    private var _halted = false
+
+    val running get() = !_halted
 
     fun load(vararg program: Int) {
         memory.addAll(program.toList())
@@ -33,9 +39,19 @@ class VM {
 
     fun stdIn(inputs: Iterable<Int>) {
         input.addAll(inputs)
+        onInput.also {
+            if (it != null && input.isNotEmpty()) {
+                onInput = null
+                write(it.c, input.removeFirst())
+                execute()
+            }
+        }
     }
 
-    fun stdOut() = output.removeFirst()
+    fun stdOut(): Int {
+        if (output.isEmpty()) throw NoOutputAvailable()
+        return output.removeFirst()
+    }
 
     fun stdOutList(): List<Int> {
         val result = output.toList()
@@ -60,6 +76,10 @@ class VM {
                 }
                 3    -> {
                     val c = next()
+                    if (input.isEmpty()) {
+                        onInput = OnInput(c)
+                        break
+                    }
                     write(c, input.removeFirst())
                 }
                 4    -> {
@@ -88,7 +108,10 @@ class VM {
                     val c = next()
                     write(c, if (a == b) 1 else 0)
                 }
-                99   -> return
+                99   -> {
+                    _halted = true
+                    break
+                }
                 else -> throw UnknownOpCode(op)
             }
         }
