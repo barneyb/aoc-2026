@@ -159,17 +159,21 @@ class VM {
     fun write(address: Int, value: Int) = write(address, value.toLong())
 
     fun read(address: Int): Long {
-        return page(address)[address % PAGE_SIZE]
+        if (address < program.size) return program[address]
+        return pages[address / PAGE_SIZE].let { page ->
+            if (page == null) 0 else page[address % PAGE_SIZE]
+        }
     }
 
     fun write(address: Int, value: Long) {
-        page(address)[address % PAGE_SIZE] = value
+        if (address < program.size) program[address] = value
+        else pages.computeIfAbsent(address / PAGE_SIZE) { MutableList(PAGE_SIZE) { 0 } }[address % PAGE_SIZE] = value
     }
 
-    fun dump(): List<Long> = program.toList()
-
-    private fun page(address: Int) =
-        if (address < program.size) program
-        else pages.computeIfAbsent(address / PAGE_SIZE) { MutableList(PAGE_SIZE) { 0 } }
+    /**
+     * I dump out the memory space the program was loaded into, including any
+     * subsequent modifications.
+     */
+    internal fun programSpace() = program.toList()
 
 }

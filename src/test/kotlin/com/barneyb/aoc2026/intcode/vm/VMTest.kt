@@ -16,7 +16,7 @@ class VMTest {
             30, 40, 50), VM().run {
             load(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50)
             execute()
-            dump()
+            programSpace()
         })
     }
 
@@ -25,7 +25,7 @@ class VMTest {
         assertEquals(listOf<Long>(2, 0, 0, 0, 99), VM().run {
             load(1, 0, 0, 0, 99)
             execute()
-            dump()
+            programSpace()
         })
     }
 
@@ -34,7 +34,7 @@ class VMTest {
         assertEquals(listOf<Long>(2, 3, 0, 6, 99), VM().run {
             load(2, 3, 0, 3, 99)
             execute()
-            dump()
+            programSpace()
         })
     }
 
@@ -43,7 +43,7 @@ class VMTest {
         assertEquals(listOf<Long>(2, 4, 4, 5, 99, 9801), VM().run {
             load(2, 4, 4, 5, 99, 0)
             execute()
-            dump()
+            programSpace()
         })
     }
 
@@ -52,7 +52,7 @@ class VMTest {
         assertEquals(listOf<Long>(30, 1, 1, 4, 2, 5, 6, 0, 99), VM().run {
             load(1, 1, 1, 4, 99, 5, 6, 0, 99)
             execute()
-            dump()
+            programSpace()
         })
     }
 
@@ -74,7 +74,7 @@ class VMTest {
         assertEquals(listOf<Long>(1002, 4, 3, 4, 99), VM().run {
             load(1002, 4, 3, 4, 33)
             execute()
-            dump()
+            programSpace()
         })
     }
 
@@ -83,7 +83,7 @@ class VMTest {
         assertEquals(listOf<Long>(1101, 100, -1, 4, 99), VM().run {
             load(1101, 100, -1, 4, 0)
             execute()
-            dump()
+            programSpace()
         })
     }
 
