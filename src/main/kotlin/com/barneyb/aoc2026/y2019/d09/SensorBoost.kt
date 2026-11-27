@@ -9,11 +9,12 @@ class SensorBoost : Solver<Any, Any>() {
 
     override fun solveInternal(ctx: Context) = ctx
         .parse(VM::parse)
-        .solveA(::boostTest)
+        .solveA { boost(it, 1) }
+        .solveB { boost(it, 2) }
 
-    fun boostTest(program: Program) = VM().run {
+    fun boost(program: Program, input: Long) = VM().run {
         load(program)
-        stdIn(1)
+        stdIn(input)
         execute()
         val output = stdOutList()
         println(output)
