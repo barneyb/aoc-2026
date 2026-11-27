@@ -211,4 +211,16 @@ class VMTest {
         })
     }
 
+    @ParameterizedTest
+    @CsvSource(
+        "'109,3,204,-1,99', 204",
+    )
+    fun relativeMode(program: String, expected: Long) {
+        assertEquals(expected, VM().run {
+            load(VM.parse(program))
+            execute()
+            stdOut()
+        })
+    }
+
 }

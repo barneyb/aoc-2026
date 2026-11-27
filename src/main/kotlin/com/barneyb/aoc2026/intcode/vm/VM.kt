@@ -23,13 +23,14 @@ class VM {
     private var onInput: OnInput? = null
     private val output = ArrayDeque<Long>()
     private var ip = 0
+    private var relBase = 0
     private var instruction = 0
     private var _halted = false
 
     val running get() = !_halted
 
     fun load(vararg program: Long) {
-        memory.addAll(program.toList())
+        load(program.toList())
     }
 
     fun load(program: Program) {
@@ -63,60 +64,62 @@ class VM {
     }
 
     fun execute() {
-        while (true) {
-            when (val op = opcode()) {
-                1    -> {
-                    val a = param()
-                    val b = param()
-                    val c = next()
-                    write(c, a + b)
-                }
-                2    -> {
-                    val a = param()
-                    val b = param()
-                    val c = next()
-                    write(c, a * b)
-                }
-                3    -> {
-                    val c = toIntExact(next())
-                    if (input.isEmpty()) {
-                        onInput = OnInput(c)
-                        break
-                    }
-                    write(c, input.removeFirst())
-                }
-                4    -> {
-                    val a = param()
-                    output.addLast(a)
-                }
-                5 -> {
-                    val a = param()
-                    val b = param()
-                    if (a != 0L) ip = b.toInt()
-                }
-                6 -> {
-                    val a = param()
-                    val b = param()
-                    if (a == 0L) ip = b.toInt()
-                }
-                7 -> {
-                    val a = param()
-                    val b = param()
-                    val c = next()
-                    write(c, if (a < b) 1 else 0)
-                }
-                8 -> {
-                    val a = param()
-                    val b = param()
-                    val c = next()
-                    write(c, if (a == b) 1 else 0)
-                }
-                99   -> {
-                    _halted = true
+        while (true) when (val op = opcode()) {
+            1    -> {
+                val a = value()
+                val b = value()
+                val c = addr()
+                write(c, a + b)
+            }
+            2    -> {
+                val a = value()
+                val b = value()
+                val c = addr()
+                write(c, a * b)
+            }
+            3    -> {
+                val c = addr()
+                if (input.isEmpty()) {
+                    onInput = OnInput(c)
                     break
                 }
-                else -> throw UnknownOpCode(op)
+                write(c, input.removeFirst())
             }
+            4    -> {
+                val a = value()
+                output.addLast(a)
+            }
+            5    -> {
+                val a = value()
+                val b = value()
+                if (a != 0L) ip = toIntExact(b)
+            }
+            6    -> {
+                val a = value()
+                val b = value()
+                if (a == 0L) ip = toIntExact(b)
+            }
+            7    -> {
+                val a = value()
+                val b = value()
+                val c = addr()
+                write(c, if (a < b) 1 else 0)
+            }
+            8    -> {
+                val a = value()
+                val b = value()
+                val c = addr()
+                write(c, if (a == b) 1 else 0)
+            }
+            9    -> {
+                val a = value()
+                relBase += toIntExact(a)
+            }
+            99   -> {
+                _halted = true
+                break
+            }
+            else -> throw UnknownOpCode(op)
         }
     }
 
@@ -126,28 +129,39 @@ class VM {
         return op
     }
 
-    private fun param(): Long {
+    private fun value(): Long {
         val mode = instruction % 10; instruction /= 10
         return when (mode) {
             0    -> read(next())
             1    -> next()
+            2    -> read(relBase + next())
             else -> throw UnknownParameterMode(mode)
         }
     }
 
-    private fun next() = read(ip++)
+    private fun addr(): Int {
+        val mode = instruction % 10; instruction /= 10
+        return toIntExact(when (mode) {
+                              0    -> next()
+                              1    -> throw UnsupportedParameterMode(mode)
+                              2    -> relBase + next()
+                              else -> throw UnknownParameterMode(mode)
+                          })
+    }
 
-    fun read(address: Int) = memory[address]
+    private fun next() = read(ip++)
 
     private fun read(address: Long) = read(toIntExact(address))
 
     fun write(address: Int, value: Int) = write(address, value.toLong())
 
+    fun read(address: Int): Long {
+        return memory[address]
+    }
+
     fun write(address: Int, value: Long) {
         memory[address] = value
     }
-
-    private fun write(address: Long, value: Long) = write(toIntExact(address), value)
 
     fun dump(): List<Long> = memory.toList()
 }
