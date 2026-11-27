@@ -8,6 +8,8 @@ typealias Program = List<Long>
 class VM {
 
     companion object {
+        private const val PAGE_SIZE = 2000 // probably fits in one OS page
+
         fun parse(reader: BufferedReader): List<Long> =
             parse(reader.readText())
 
@@ -18,7 +20,8 @@ class VM {
 
     private data class OnInput(val c: Int)
 
-    private val memory: MutableList<Long> = mutableListOf()
+    private val program: MutableList<Long> = mutableListOf()
+    private val pages: MutableMap<Int, MutableList<Long>> = mutableMapOf()
     private val input = ArrayDeque<Long>()
     private var onInput: OnInput? = null
     private val output = ArrayDeque<Long>()
@@ -34,7 +37,7 @@ class VM {
     }
 
     fun load(program: Program) {
-        memory.addAll(program)
+        this.program.addAll(program)
     }
 
     fun stdIn(vararg inputs: Int) = stdIn(inputs.map { it.toLong() })
@@ -156,12 +159,17 @@ class VM {
     fun write(address: Int, value: Int) = write(address, value.toLong())
 
     fun read(address: Int): Long {
-        return memory[address]
+        return page(address)[address % PAGE_SIZE]
     }
 
     fun write(address: Int, value: Long) {
-        memory[address] = value
+        page(address)[address % PAGE_SIZE] = value
     }
 
-    fun dump(): List<Long> = memory.toList()
+    fun dump(): List<Long> = program.toList()
+
+    private fun page(address: Int) =
+        if (address < program.size) program
+        else pages.computeIfAbsent(address / PAGE_SIZE) { MutableList(PAGE_SIZE) { 0 } }
+
 }
