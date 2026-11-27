@@ -32,6 +32,8 @@ def solve(year, day, data):
     part_b = None
     nanos = None
     for line in proc.stdout.strip().splitlines():
+        if "\t" not in line:
+            continue
         (label, value) = line.split("\t")[:2]
         if label == "PART_A:":
             part_a = value
